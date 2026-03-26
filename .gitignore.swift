@@ -1,3 +1,10 @@
+//
+//  .gitignore.swift
+//  
+//
+//  Created by Lutua Westley on 3/26/26.
+//
+
 # macOS
 .DS_Store
 .AppleDouble
@@ -31,3 +38,5 @@ Secrets.swift
 *.ipa
 *.dSYM.zip
 *.dSYM
+
+
