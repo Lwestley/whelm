@@ -1,19 +1,8 @@
 import SwiftUI
+import SwiftData
 
 struct HomeView: View {
-    let starterName: String
-    let day: Int
-    let totalDays: Int = 14
-    let state: OrbState = .active
-
-    var stateLabel: String {
-        switch state {
-        case .dormant: return "Just getting started"
-        case .waking: return "Waking up"
-        case .active: return "Getting strong"
-        case .peak: return "Ready to bake"
-        }
-    }
+    let starter: Starter
 
     var body: some View {
         ZStack {
@@ -32,7 +21,7 @@ struct HomeView: View {
                 Spacer()
 
                 // Starter name
-                Text("\(starterName) — your starter")
+                Text("\(starter.name) — your starter")
                     .font(.system(size: 13, weight: .light))
                     .tracking(3)
                     .textCase(.uppercase)
@@ -40,18 +29,18 @@ struct HomeView: View {
                     .padding(.bottom, 28)
 
                 // Orb
-                OrbView(state: state, size: 88, showRings: true)
+                OrbView(state: starter.orbState, size: 88, showRings: true)
                     .padding(.bottom, 36)
 
                 // Day number
-                Text("\(day)")
+                Text("\(starter.currentDay)")
                     .font(.system(size: 80, weight: .ultraLight))
                     .foregroundColor(.whelmCream)
                     .tracking(-3)
                     .padding(.bottom, 6)
 
                 // Day sub
-                Text("of \(totalDays) days")
+                Text("of 14 days")
                     .font(.system(size: 11, weight: .light))
                     .tracking(4)
                     .textCase(.uppercase)
@@ -63,7 +52,7 @@ struct HomeView: View {
                     Circle()
                         .fill(Color.whelmAmber)
                         .frame(width: 6, height: 6)
-                    Text(stateLabel)
+                    Text(starter.stateLabel)
                         .font(.system(size: 11, weight: .regular))
                         .tracking(1)
                         .foregroundColor(.whelmAmber.opacity(0.8))
@@ -124,10 +113,12 @@ struct HomeView: View {
             }
             .padding(.horizontal, 32)
             .padding(.vertical, 52)
+            .navigationBarHidden(true)
         }
     }
 }
 
 #Preview {
-    HomeView(starterName: "Milo", day: 3)
+    HomeView(starter: Starter(name: "Milo"))
+        .modelContainer(for: [Starter.self, FeedingEntry.self], inMemory: true)
 }
