@@ -19,9 +19,6 @@ class ClaudeService {
         observations: [String],
         notes: String = ""
     ) async throws -> String {
-        print("API Key found: \(!apiKey.isEmpty)")
-        print("Making request to: \(apiURL)")
-        
         let observationText = observations.joined(separator: ", ")
         let notesText = notes.isEmpty ? "" : " Additional notes: \(notes)."
 
@@ -32,11 +29,12 @@ class ClaudeService {
 
         Today's observations: \(observationText).\(notesText)
 
-        Respond with:
-        1. What these observations mean in 2-3 sentences. Be specific to what they described.
-        2. Exactly what they should do today in 2-3 clear action points.
+        Respond in two paragraphs with a blank line between them. No headers, no bullet points, no bold text, no asterisks, no em dashes. Just clean flowing prose.
 
-        Keep the total response under 150 words. No bullet points — use natural flowing language. Speak directly to them, not about them.
+        First paragraph: what these observations mean. Be specific to what they described.
+        Second paragraph: exactly what they should do today. Be direct and clear.
+
+        Keep the total response under 150 words. Speak directly to them, not about them.
         """
 
         let body: [String: Any] = [
@@ -55,14 +53,6 @@ class ClaudeService {
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let (data, response) = try await URLSession.shared.data(for: request)
-        
-        if let httpResponse = response as? HTTPURLResponse {
-            print("HTTP Status: \(httpResponse.statusCode)")
-        }
-        
-        if let responseString = String(data: data, encoding: .utf8) {
-            print("Response: \(responseString)")
-        }
 
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let content = json["content"] as? [[String: Any]],
