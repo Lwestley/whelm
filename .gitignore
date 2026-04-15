@@ -1,3 +1,4 @@
+Ls
 //
 //  .gitignore.swift
 //  
@@ -38,5 +39,8 @@ Secrets.swift
 *.ipa
 *.dSYM.zip
 *.dSYM
+
+**/Info.plist
+
 
 
