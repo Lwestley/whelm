@@ -3,11 +3,12 @@ import Foundation
 class ClaudeService {
     static let shared = ClaudeService()
     private let apiURL = "https://api.anthropic.com/v1/messages"
-    private let model = "claude-sonnet-4-20250514"
-
+    private let model = "claude-sonnet-4-5"
+    
     private var apiKey: String {
-        guard let key = Bundle.main.infoDictionary?["ANTHROPIC_API_KEY"] as? String else {
-            fatalError("Missing ANTHROPIC_API_KEY in Info.plist")
+        guard let key = Bundle.main.infoDictionary?["ANTHROPIC_API_KEY"] as? String,
+              !key.isEmpty else {
+            return ""
         }
         return key
     }
@@ -18,6 +19,9 @@ class ClaudeService {
         observations: [String],
         notes: String = ""
     ) async throws -> String {
+        print("API Key found: \(!apiKey.isEmpty)")
+        print("Making request to: \(apiURL)")
+        
         let observationText = observations.joined(separator: ", ")
         let notesText = notes.isEmpty ? "" : " Additional notes: \(notes)."
 
@@ -50,7 +54,15 @@ class ClaudeService {
         request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        if let httpResponse = response as? HTTPURLResponse {
+            print("HTTP Status: \(httpResponse.statusCode)")
+        }
+        
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("Response: \(responseString)")
+        }
 
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let content = json["content"] as? [[String: Any]],

@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
+    @State private var navigateToCheckIn = false
     let starter: Starter
 
     var body: some View {
@@ -92,7 +93,7 @@ struct HomeView: View {
                 .padding(.bottom, 12)
 
                 // Buttons
-                Button(action: {}) {
+                Button(action: { navigateToCheckIn = true }) {
                     Text("Log today's feeding")
                         .font(.system(size: 14, weight: .regular))
                         .foregroundColor(Color(hex: "1a1612"))
@@ -114,6 +115,10 @@ struct HomeView: View {
             .padding(.horizontal, 32)
             .padding(.vertical, 52)
             .navigationBarHidden(true)
+            
+            .navigationDestination(isPresented: $navigateToCheckIn) {
+                CheckInView(starter: starter)
+            }
         }
     }
 }
