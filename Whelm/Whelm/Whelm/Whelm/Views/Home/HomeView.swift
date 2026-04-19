@@ -2,8 +2,9 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
-    @State private var navigateToCheckIn = false
     let starter: Starter
+    var onCheckIn: () -> Void
+    var onLog: () -> Void
 
     var body: some View {
         ZStack {
@@ -93,7 +94,7 @@ struct HomeView: View {
                 .padding(.bottom, 12)
 
                 // Buttons
-                Button(action: { navigateToCheckIn = true }) {
+                Button(action: onCheckIn) {
                     Text("Log today's feeding")
                         .font(.system(size: 14, weight: .regular))
                         .foregroundColor(Color(hex: "1a1612"))
@@ -104,8 +105,8 @@ struct HomeView: View {
                 }
                 .padding(.bottom, 10)
 
-                Button(action: {}) {
-                    Text("I see bubbles")
+                Button(action: onLog) {
+                    Text("View feeding log")
                         .font(.system(size: 14, weight: .regular))
                         .foregroundColor(.white.opacity(0.25))
                         .frame(maxWidth: .infinity)
@@ -114,16 +115,15 @@ struct HomeView: View {
             }
             .padding(.horizontal, 32)
             .padding(.vertical, 52)
-            .navigationBarHidden(true)
-            
-            .navigationDestination(isPresented: $navigateToCheckIn) {
-                CheckInView(starter: starter)
-            }
         }
     }
 }
 
 #Preview {
-    HomeView(starter: Starter(name: "Milo"))
-        .modelContainer(for: [Starter.self, FeedingEntry.self], inMemory: true)
+    HomeView(
+        starter: Starter(name: "Milo"),
+        onCheckIn: {},
+        onLog: {}
+    )
+    .modelContainer(for: [Starter.self, FeedingEntry.self], inMemory: true)
 }

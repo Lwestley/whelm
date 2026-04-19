@@ -1,17 +1,17 @@
-import SwiftData
 import SwiftUI
+import SwiftData
 
 struct CheckInView: View {
     let starter: Starter
-    @Environment(\.dismiss) private var dismiss
+    var onResponse: (String, [String]) -> Void
+    var onBack: () -> Void
+    @Environment(\.modelContext) private var modelContext
 
     @State private var selectedRise: String? = nil
     @State private var selectedBubbles: String? = nil
     @State private var selectedSmell: String? = nil
     @State private var notes: String = ""
     @State private var isLoading = false
-    @State private var response: String? = nil
-    @State private var navigateToResponse = false
 
     let riseOptions = ["No rise", "A little rise", "Doubled", "More than doubled"]
     let bubbleOptions = ["None", "Small bubbles", "Very bubbly", "Webby texture"]
@@ -35,6 +35,21 @@ struct CheckInView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
+
+                    // Back button
+                    HStack {
+                        Button(action: onBack) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 12, weight: .light))
+                                Text("Back")
+                                    .font(.system(size: 14, weight: .light))
+                            }
+                            .foregroundColor(.white.opacity(0.4))
+                        }
+                        Spacer()
+                    }
+                    .padding(.bottom, 16)
 
                     // Wordmark
                     Text("whelm")
@@ -118,16 +133,6 @@ struct CheckInView: View {
                 .padding(.bottom, 48)
             }
         }
-        .navigationBarHidden(true)
-        .navigationDestination(isPresented: $navigateToResponse) {
-            if let response = response {
-                ResponseView(
-                    starter: starter,
-                    observations: observations,
-                    response: response
-                )
-            }
-        }
     }
 
     @ViewBuilder
@@ -190,16 +195,23 @@ struct CheckInView: View {
                     observations: observations,
                     notes: notes
                 )
+                let entry = FeedingEntry(
+                    day: starter.currentDay,
+                    rise: selectedRise ?? "",
+                    bubbles: selectedBubbles ?? "",
+                    smell: selectedSmell ?? "",
+                    notes: notes
+                )
+                entry.starter = starter
+                modelContext.insert(entry)
                 await MainActor.run {
-                    response = result
                     isLoading = false
-                    navigateToResponse = true
+                    onResponse(result, observations)
                 }
             } catch {
                 await MainActor.run {
                     isLoading = false
-                    response = "Error: \(error.localizedDescription)"
-                    navigateToResponse = true
+                    onResponse("Error: \(error.localizedDescription)", observations)
                 }
             }
         }
@@ -207,8 +219,10 @@ struct CheckInView: View {
 }
 
 #Preview {
-    NavigationStack {
-        CheckInView(starter: Starter(name: "Milo"))
-    }
+    CheckInView(
+        starter: Starter(name: "Milo"),
+        onResponse: { _, _ in },
+        onBack: {}
+    )
     .modelContainer(for: [Starter.self, FeedingEntry.self], inMemory: true)
 }
