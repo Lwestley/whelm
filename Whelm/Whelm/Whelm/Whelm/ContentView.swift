@@ -7,6 +7,7 @@ enum AppScreen {
     case checkIn
     case response(String, [String])
     case log
+    case settings
 }
 
 struct ContentView: View {
@@ -28,7 +29,8 @@ struct ContentView: View {
                     HomeView(
                         starter: starter,
                         onCheckIn: { screen = .checkIn },
-                        onLog: { screen = .log }
+                        onLog: { screen = .log },
+                        onSettings: { screen = .settings }
                     )
                 }
             case .checkIn:
@@ -57,6 +59,13 @@ struct ContentView: View {
                         onBack: { screen = .home }
                     )
                 }
+            case .settings:
+                if let starter = currentStarter ?? starters.first {
+                    SettingsView(
+                        starter: starter,
+                        onBack: { screen = .home }
+                    )
+                }
             }
         }
         .onAppear {
@@ -69,6 +78,11 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
-        .modelContainer(for: [Starter.self, FeedingEntry.self], inMemory: true)
+    HomeView(
+        starter: Starter(name: "Milo"),
+        onCheckIn: {},
+        onLog: {},
+        onSettings: {}
+    )
+    .modelContainer(for: [Starter.self, FeedingEntry.self], inMemory: true)
 }

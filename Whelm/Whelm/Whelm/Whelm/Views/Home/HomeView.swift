@@ -5,6 +5,7 @@ struct HomeView: View {
     let starter: Starter
     var onCheckIn: () -> Void
     var onLog: () -> Void
+    var onSettings: () -> Void
 
     var body: some View {
         ZStack {
@@ -12,13 +13,22 @@ struct HomeView: View {
 
             VStack(spacing: 0) {
 
-                // Wordmark
-                Text("whelm")
-                    .font(.system(size: 11, weight: .medium))
-                    .tracking(4)
-                    .textCase(.uppercase)
-                    .foregroundColor(.white.opacity(0.18))
-                    .padding(.top, 8)
+                // Wordmark row
+                HStack {
+                    Spacer()
+                    Text("whelm")
+                        .font(.system(size: 11, weight: .medium))
+                        .tracking(4)
+                        .textCase(.uppercase)
+                        .foregroundColor(.white.opacity(0.18))
+                    Spacer()
+                    Button(action: onSettings) {
+                        Image(systemName: "gearshape")
+                            .font(.system(size: 16, weight: .light))
+                            .foregroundColor(.white.opacity(0.25))
+                    }
+                }
+                .padding(.top, 8)
 
                 Spacer()
 
@@ -123,7 +133,8 @@ struct HomeView: View {
     HomeView(
         starter: Starter(name: "Milo"),
         onCheckIn: {},
-        onLog: {}
+        onLog: {},
+        onSettings: {}
     )
     .modelContainer(for: [Starter.self, FeedingEntry.self], inMemory: true)
 }
