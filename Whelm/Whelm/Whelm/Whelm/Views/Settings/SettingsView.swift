@@ -12,6 +12,12 @@ struct SettingsView: View {
     @State private var dailyReminderOn = true
     @State private var peakAlertOn = false
     @State private var bakeDayRemindersOn = true
+    @State private var selectedUnit = "Imperial"
+    @State private var selectedFlour = "Bread flour"
+    @State private var kitchenTemp = 72.0
+    @State private var showUnitPicker = false
+    @State private var showFlourPicker = false
+    @State private var showTempPicker = false
 
     var body: some View {
         ZStack {
@@ -20,7 +26,6 @@ struct SettingsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
 
-                    // Back button
                     HStack {
                         Button(action: onBack) {
                             HStack(spacing: 6) {
@@ -35,7 +40,6 @@ struct SettingsView: View {
                     }
                     .padding(.bottom, 16)
 
-                    // Wordmark
                     Text("whelm")
                         .font(.system(size: 11, weight: .medium))
                         .tracking(4)
@@ -44,8 +48,7 @@ struct SettingsView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.bottom, 32)
 
-                    // Header
-                    Text("your profile - Day \(starter.currentDay)")
+                    Text("Day \(starter.currentDay) — your profile")
                         .font(.system(size: 10, weight: .medium))
                         .tracking(3)
                         .textCase(.uppercase)
@@ -57,7 +60,6 @@ struct SettingsView: View {
                         .foregroundColor(.whelmCream)
                         .padding(.bottom, 28)
 
-                    // Starter hero card
                     HStack(spacing: 18) {
                         OrbView(state: starter.orbState, size: 36, showRings: true)
                             .frame(width: 56, height: 56)
@@ -91,17 +93,78 @@ struct SettingsView: View {
                     .cornerRadius(WhelmRadius.lg)
                     .padding(.bottom, 28)
 
-                    // Kitchen section
                     sectionLabel("Your kitchen")
 
                     settingsCard {
-                        settingsRow(label: "Flour type", sub: "Used for ratio guidance", value: "Bread flour")
-                        settingsRow(label: "Kitchen temperature", sub: "Affects fermentation timing", value: "72°F")
-                        settingsRow(label: "Units", sub: "Weight and temperature", value: "Imperial")
+                        Button(action: { showFlourPicker = true }) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text("Flour type")
+                                        .font(.system(size: 14, weight: .regular))
+                                        .foregroundColor(.white.opacity(0.65))
+                                    Text("Used for ratio guidance")
+                                        .font(.system(size: 11, weight: .light))
+                                        .foregroundColor(.white.opacity(0.22))
+                                }
+                                Spacer()
+                                Text(selectedFlour)
+                                    .font(.system(size: 13, weight: .light))
+                                    .foregroundColor(.white.opacity(0.28))
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 10, weight: .light))
+                                    .foregroundColor(.white.opacity(0.2))
+                            }
+                            .padding(18)
+                        }
+
+                        Divider().background(Color.white.opacity(0.05))
+
+                        Button(action: { showTempPicker = true }) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text("Kitchen temperature")
+                                        .font(.system(size: 14, weight: .regular))
+                                        .foregroundColor(.white.opacity(0.65))
+                                    Text("Affects fermentation timing")
+                                        .font(.system(size: 11, weight: .light))
+                                        .foregroundColor(.white.opacity(0.22))
+                                }
+                                Spacer()
+                                Text("\(Int(kitchenTemp))°\(selectedUnit == "Imperial" ? "F" : "C")")
+                                    .font(.system(size: 13, weight: .light))
+                                    .foregroundColor(.white.opacity(0.28))
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 10, weight: .light))
+                                    .foregroundColor(.white.opacity(0.2))
+                            }
+                            .padding(18)
+                        }
+
+                        Divider().background(Color.white.opacity(0.05))
+
+                        Button(action: { showUnitPicker = true }) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text("Units")
+                                        .font(.system(size: 14, weight: .regular))
+                                        .foregroundColor(.white.opacity(0.65))
+                                    Text("Weight and temperature")
+                                        .font(.system(size: 11, weight: .light))
+                                        .foregroundColor(.white.opacity(0.22))
+                                }
+                                Spacer()
+                                Text(selectedUnit)
+                                    .font(.system(size: 13, weight: .light))
+                                    .foregroundColor(.white.opacity(0.28))
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 10, weight: .light))
+                                    .foregroundColor(.white.opacity(0.2))
+                            }
+                            .padding(18)
+                        }
                     }
                     .padding(.bottom, 28)
 
-                    // Reminders section
                     sectionLabel("Reminders")
 
                     settingsCard {
@@ -111,7 +174,6 @@ struct SettingsView: View {
                     }
                     .padding(.bottom, 28)
 
-                    // Starter section
                     sectionLabel("Starter")
 
                     settingsCard {
@@ -134,6 +196,25 @@ struct SettingsView: View {
         .sheet(isPresented: $showRenameSheet) {
             renameSheet
         }
+        .sheet(isPresented: $showFlourPicker) {
+            pickerSheet(
+                title: "Flour type",
+                options: ["Bread flour", "All-purpose", "Whole wheat", "Rye", "Spelt"],
+                selected: $selectedFlour,
+                isPresented: $showFlourPicker
+            )
+        }
+        .sheet(isPresented: $showUnitPicker) {
+            pickerSheet(
+                title: "Units",
+                options: ["Imperial", "Metric"],
+                selected: $selectedUnit,
+                isPresented: $showUnitPicker
+            )
+        }
+        .sheet(isPresented: $showTempPicker) {
+            tempSheet
+        }
         .alert("Delete \(starter.name)?", isPresented: $showDeleteConfirm) {
             Button("Delete", role: .destructive) {
                 modelContext.delete(starter)
@@ -148,7 +229,6 @@ struct SettingsView: View {
     var renameSheet: some View {
         ZStack {
             Color.whelmBackground.ignoresSafeArea()
-
             VStack(alignment: .leading, spacing: 0) {
                 Text("Rename your starter")
                     .font(.system(size: 22, weight: .ultraLight))
@@ -173,6 +253,64 @@ struct SettingsView: View {
                         showRenameSheet = false
                     }
                 }) {
+                    Text("Save")
+                        .font(.system(size: 14, weight: .regular))
+                        .foregroundColor(Color(hex: "1a1612"))
+                        .frame(maxWidth: .infinity)
+                        .padding(18)
+                        .background(Color.whelmAmber)
+                        .cornerRadius(14)
+                }
+
+                Spacer()
+            }
+            .padding(32)
+            .padding(.top, 52)
+        }
+    }
+
+    var tempSheet: some View {
+        ZStack {
+            Color.whelmBackground.ignoresSafeArea()
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Kitchen temperature")
+                    .font(.system(size: 22, weight: .ultraLight))
+                    .foregroundColor(.whelmCream)
+                    .padding(.bottom, 8)
+
+                Text("Whelm uses this to calibrate fermentation timing advice.")
+                    .font(.system(size: 14, weight: .light))
+                    .foregroundColor(.white.opacity(0.35))
+                    .lineSpacing(4)
+                    .padding(.bottom, 48)
+
+                Text("\(Int(kitchenTemp))°\(selectedUnit == "Imperial" ? "F" : "C")")
+                    .font(.system(size: 64, weight: .ultraLight))
+                    .foregroundColor(.whelmCream)
+                    .tracking(-2)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.bottom, 32)
+
+                Slider(
+                    value: $kitchenTemp,
+                    in: selectedUnit == "Imperial" ? 60...85 : 15...30,
+                    step: 1
+                )
+                .tint(Color.whelmAmber)
+                .padding(.bottom, 16)
+
+                HStack {
+                    Text(selectedUnit == "Imperial" ? "60°F" : "15°C")
+                        .font(.system(size: 12, weight: .light))
+                        .foregroundColor(.white.opacity(0.25))
+                    Spacer()
+                    Text(selectedUnit == "Imperial" ? "85°F" : "30°C")
+                        .font(.system(size: 12, weight: .light))
+                        .foregroundColor(.white.opacity(0.25))
+                }
+                .padding(.bottom, 48)
+
+                Button(action: { showTempPicker = false }) {
                     Text("Save")
                         .font(.system(size: 14, weight: .regular))
                         .foregroundColor(Color(hex: "1a1612"))
@@ -274,6 +412,53 @@ struct SettingsView: View {
                     .foregroundColor(Color(red: 0.7, green: 0.3, blue: 0.25).opacity(0.4))
             }
             .padding(18)
+        }
+    }
+
+    func pickerSheet(title: String, options: [String], selected: Binding<String>, isPresented: Binding<Bool>) -> some View {
+        ZStack {
+            Color.whelmBackground.ignoresSafeArea()
+            VStack(alignment: .leading, spacing: 0) {
+                Text(title)
+                    .font(.system(size: 22, weight: .ultraLight))
+                    .foregroundColor(.whelmCream)
+                    .padding(.bottom, 28)
+
+                VStack(spacing: 0) {
+                    ForEach(options, id: \.self) { option in
+                        Button(action: {
+                            selected.wrappedValue = option
+                            isPresented.wrappedValue = false
+                        }) {
+                            HStack {
+                                Text(option)
+                                    .font(.system(size: 15, weight: .light))
+                                    .foregroundColor(.white.opacity(0.7))
+                                Spacer()
+                                if selected.wrappedValue == option {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 12, weight: .regular))
+                                        .foregroundColor(.whelmAmber)
+                                }
+                            }
+                            .padding(18)
+                        }
+                        if option != options.last {
+                            Divider().background(Color.white.opacity(0.05))
+                        }
+                    }
+                }
+                .background(Color.white.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: WhelmRadius.lg)
+                        .stroke(Color.white.opacity(0.07), lineWidth: 0.5)
+                )
+                .cornerRadius(WhelmRadius.lg)
+
+                Spacer()
+            }
+            .padding(32)
+            .padding(.top, 52)
         }
     }
 }
