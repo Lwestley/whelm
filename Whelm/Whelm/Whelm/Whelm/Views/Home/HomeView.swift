@@ -7,6 +7,7 @@ struct HomeView: View {
     var onLog: () -> Void
     var onSettings: () -> Void
     var onBakePlanner: () -> Void
+    var onScoreBake: () -> Void
 
     var body: some View {
         ZStack {
@@ -131,6 +132,13 @@ struct HomeView: View {
                         .frame(maxWidth: .infinity)
                         .padding(14)
                 }
+                Button(action: onScoreBake) {
+                    Text("Score and bake")
+                        .font(.system(size: 14, weight: .regular))
+                        .foregroundColor(.white.opacity(0.25))
+                        .frame(maxWidth: .infinity)
+                        .padding(14)
+                }
             }
             .padding(.horizontal, 32)
             .padding(.vertical, 52)
@@ -144,7 +152,8 @@ struct HomeView: View {
         onCheckIn: {},
         onLog: {},
         onSettings: {},
-        onBakePlanner: {}
+        onBakePlanner: {},
+        onScoreBake: {}
     )
     .modelContainer(for: [Starter.self, FeedingEntry.self], inMemory: true)
 }
