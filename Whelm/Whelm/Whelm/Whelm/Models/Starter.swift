@@ -23,6 +23,11 @@ class Starter {
     var daysSinceCreation: Int {
         Calendar.current.dateComponents([.day], from: createdAt, to: Date()).day ?? 0
     }
+    
+    var calculatedDay: Int {
+        let days = Calendar.current.dateComponents([.day], from: createdAt, to: Date()).day ?? 0
+        return min(days + 1, 14)
+    }
 
     var orbState: OrbState {
         switch currentDay {

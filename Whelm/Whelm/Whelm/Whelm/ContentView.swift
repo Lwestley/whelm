@@ -70,6 +70,7 @@ struct ContentView: View {
         }
         .onAppear {
             if let existing = starters.first {
+                existing.currentDay = existing.calculatedDay
                 currentStarter = existing
                 screen = .home
             }
