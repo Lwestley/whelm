@@ -12,12 +12,20 @@ struct SettingsView: View {
     @State private var dailyReminderOn = true
     @State private var peakAlertOn = false
     @State private var bakeDayRemindersOn = true
-    @State private var selectedUnit = "Imperial"
-    @State private var selectedFlour = "Bread flour"
-    @State private var kitchenTemp = 72.0
     @State private var showUnitPicker = false
     @State private var showFlourPicker = false
     @State private var showTempPicker = false
+    @State private var selectedUnit: String
+    @State private var selectedFlour: String
+    @State private var kitchenTemp: Double
+
+    init(starter: Starter, onBack: @escaping () -> Void) {
+        self.starter = starter
+        self.onBack = onBack
+        self._selectedUnit = State(initialValue: starter.units)
+        self._selectedFlour = State(initialValue: starter.flourType)
+        self._kitchenTemp = State(initialValue: starter.kitchenTemp)
+    }
 
     var body: some View {
         ZStack {
@@ -192,6 +200,15 @@ struct SettingsView: View {
                 .padding(.top, 52)
                 .padding(.bottom, 48)
             }
+        }
+        .onChange(of: selectedUnit) { _, newValue in
+            starter.units = newValue
+        }
+        .onChange(of: selectedFlour) { _, newValue in
+            starter.flourType = newValue
+        }
+        .onChange(of: kitchenTemp) { _, newValue in
+            starter.kitchenTemp = newValue
         }
         .sheet(isPresented: $showRenameSheet) {
             renameSheet

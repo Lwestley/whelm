@@ -9,6 +9,9 @@ class Starter {
     var lastFedAt: Date?
     var currentDay: Int
     var isReady: Bool
+    var flourType: String
+    var kitchenTemp: Double
+    var units: String
 
     init(name: String) {
         self.id = UUID()
@@ -17,13 +20,15 @@ class Starter {
         self.lastFedAt = nil
         self.currentDay = 1
         self.isReady = false
+        self.flourType = "Bread flour"
+        self.kitchenTemp = 72.0
+        self.units = "Imperial"
     }
 
-    // Computed properties
     var daysSinceCreation: Int {
         Calendar.current.dateComponents([.day], from: createdAt, to: Date()).day ?? 0
     }
-    
+
     var calculatedDay: Int {
         let days = Calendar.current.dateComponents([.day], from: createdAt, to: Date()).day ?? 0
         return min(days + 1, 14)
