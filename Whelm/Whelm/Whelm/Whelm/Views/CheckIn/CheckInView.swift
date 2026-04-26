@@ -193,7 +193,10 @@ struct CheckInView: View {
                     starterName: starter.name,
                     day: starter.currentDay,
                     observations: observations,
-                    notes: notes
+                    notes: notes,
+                    flourType: starter.flourType,
+                    kitchenTemp: starter.kitchenTemp,
+                    units: starter.units
                 )
                 let entry = FeedingEntry(
                     day: starter.currentDay,
