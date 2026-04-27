@@ -35,8 +35,8 @@ struct HomeView: View {
                 }
                 .padding(.top, 8)
 
-                Spacer()
-
+                Spacer(minLength: 20)
+                
                 // Starter name
                 Text("\(starter.name) — your starter")
                     .font(.system(size: 13, weight: .light))
@@ -83,8 +83,8 @@ struct HomeView: View {
                 )
                 .clipShape(Capsule())
 
-                Spacer()
-
+                Spacer(minLength: 20)
+                
                 // Guidance card
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Today's read")

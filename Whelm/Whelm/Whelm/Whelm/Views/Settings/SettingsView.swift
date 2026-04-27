@@ -18,6 +18,7 @@ struct SettingsView: View {
     @State private var selectedUnit: String
     @State private var selectedFlour: String
     @State private var kitchenTemp: Double
+    @State private var showResetConfirm = false
 
     init(starter: Starter, onBack: @escaping () -> Void) {
         self.starter = starter
@@ -185,7 +186,23 @@ struct SettingsView: View {
                     sectionLabel("Starter")
 
                     settingsCard {
-                        settingsRow(label: "Reset starter journey", sub: "Start from Day 1 again", value: "")
+                        Button(action: { showResetConfirm = true }) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text("Reset starter journey")
+                                        .font(.system(size: 14, weight: .regular))
+                                        .foregroundColor(.white.opacity(0.65))
+                                    Text("Start from Day 1 again")
+                                        .font(.system(size: 11, weight: .light))
+                                        .foregroundColor(.white.opacity(0.22))
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 10, weight: .light))
+                                    .foregroundColor(.white.opacity(0.2))
+                            }
+                            .padding(18)
+                        };
                         dangerRow(label: "Delete \(starter.name)")
                     }
                     .padding(.bottom, 28)
@@ -240,6 +257,18 @@ struct SettingsView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will permanently delete your starter and all feeding history. This cannot be undone.")
+        }
+        .alert("Reset \(starter.name)?", isPresented: $showResetConfirm) {
+            Button("Reset", role: .destructive) {
+                starter.currentDay = 1
+                starter.createdAt = Date()
+                starter.lastFedAt = nil
+                starter.isReady = false
+                onBack()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will reset \(starter.name) back to Day 1. Your feeding history will be kept.")
         }
     }
 
