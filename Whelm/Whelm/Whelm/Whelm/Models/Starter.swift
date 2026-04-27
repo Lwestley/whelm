@@ -12,6 +12,8 @@ class Starter {
     var flourType: String
     var kitchenTemp: Double
     var units: String
+    var lastDailyRead: String?
+    var lastDailyReadDate: Date?
 
     init(name: String) {
         self.id = UUID()

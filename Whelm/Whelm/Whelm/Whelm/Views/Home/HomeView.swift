@@ -165,6 +165,16 @@ struct HomeView: View {
     }
 
     func loadDailyRead() {
+        // Check if we already have a read for today
+        if let lastDate = starter.lastDailyReadDate,
+           let lastRead = starter.lastDailyRead,
+           Calendar.current.isDateInToday(lastDate) {
+            dailyRead = lastRead
+            isLoadingRead = false
+            return
+        }
+
+        // Otherwise fetch a fresh one
         isLoadingRead = true
         Task {
             do {
@@ -177,11 +187,13 @@ struct HomeView: View {
                 )
                 await MainActor.run {
                     dailyRead = result
+                    starter.lastDailyRead = result
+                    starter.lastDailyReadDate = Date()
                     isLoadingRead = false
                 }
             } catch {
                 await MainActor.run {
-                    dailyRead = "Check in on \(starter.name) today and note what you see."
+                    dailyRead = starter.lastDailyRead ?? "Check in on \(starter.name) today and note what you see."
                     isLoadingRead = false
                 }
             }
