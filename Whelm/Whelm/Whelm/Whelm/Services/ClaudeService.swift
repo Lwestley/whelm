@@ -69,4 +69,49 @@ class ClaudeService {
 
         return text
     }
+    
+    func dailyRead(
+        starterName: String,
+        day: Int,
+        flourType: String = "Bread flour",
+        kitchenTemp: Double = 72.0,
+        units: String = "Imperial"
+    ) async throws -> String {
+        let tempString = units == "Imperial" ? "\(Int(kitchenTemp))°F" : "\(Int(kitchenTemp))°C"
+
+        let prompt = """
+        You are Whelm, a master sourdough baker companion app. You speak with calm authority, warmth, and precision.
+
+        The user has a sourdough starter named \(starterName) on day \(day) of 14.
+        Their kitchen is \(tempString) and they are using \(flourType).
+
+        Write a single short paragraph — 2 to 3 sentences — telling them what to expect or watch for today. This appears on their home screen as a daily read. It should feel like a quiet nudge from a master baker, not a lesson. No headers, no bullet points, no bold text, no asterisks, no em dashes. Under 60 words.
+        """
+
+        let body: [String: Any] = [
+            "model": model,
+            "max_tokens": 150,
+            "messages": [
+                ["role": "user", "content": prompt]
+            ]
+        ]
+
+        var request = URLRequest(url: URL(string: apiURL)!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let content = json["content"] as? [[String: Any]],
+              let first = content.first,
+              let text = first["text"] as? String else {
+            throw URLError(.badServerResponse)
+        }
+
+        return text
+    }
 }

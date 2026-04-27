@@ -9,6 +9,9 @@ struct HomeView: View {
     var onBakePlanner: () -> Void
     var onScoreBake: () -> Void
 
+    @State private var dailyRead: String = "Loading today's read..."
+    @State private var isLoadingRead = true
+
     var body: some View {
         ZStack {
             Color.whelmBackground.ignoresSafeArea()
@@ -90,10 +93,22 @@ struct HomeView: View {
                         .textCase(.uppercase)
                         .foregroundColor(.whelmAmber.opacity(0.6))
 
-                    Text("You might see small bubbles forming near the edges. That's your wild yeast saying hello. Don't feed yet — let it build hunger.")
-                        .font(.system(size: 15, weight: .light))
-                        .foregroundColor(.white.opacity(0.72))
-                        .lineSpacing(5)
+                    if isLoadingRead {
+                        HStack {
+                            ProgressView()
+                                .tint(.white.opacity(0.3))
+                                .scaleEffect(0.8)
+                            Text("Checking in on \(starter.name)...")
+                                .font(.system(size: 14, weight: .light))
+                                .foregroundColor(.white.opacity(0.3))
+                        }
+                    } else {
+                        Text(dailyRead)
+                            .font(.system(size: 15, weight: .light))
+                            .foregroundColor(.white.opacity(0.72))
+                            .lineSpacing(5)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(22)
@@ -124,7 +139,7 @@ struct HomeView: View {
                         .frame(maxWidth: .infinity)
                         .padding(14)
                 }
-                
+
                 Button(action: onBakePlanner) {
                     Text("Plan a bake")
                         .font(.system(size: 14, weight: .regular))
@@ -132,6 +147,7 @@ struct HomeView: View {
                         .frame(maxWidth: .infinity)
                         .padding(14)
                 }
+
                 Button(action: onScoreBake) {
                     Text("Score and bake")
                         .font(.system(size: 14, weight: .regular))
@@ -142,6 +158,33 @@ struct HomeView: View {
             }
             .padding(.horizontal, 32)
             .padding(.vertical, 52)
+        }
+        .onAppear {
+            loadDailyRead()
+        }
+    }
+
+    func loadDailyRead() {
+        isLoadingRead = true
+        Task {
+            do {
+                let result = try await ClaudeService.shared.dailyRead(
+                    starterName: starter.name,
+                    day: starter.currentDay,
+                    flourType: starter.flourType,
+                    kitchenTemp: starter.kitchenTemp,
+                    units: starter.units
+                )
+                await MainActor.run {
+                    dailyRead = result
+                    isLoadingRead = false
+                }
+            } catch {
+                await MainActor.run {
+                    dailyRead = "Check in on \(starter.name) today and note what you see."
+                    isLoadingRead = false
+                }
+            }
         }
     }
 }
